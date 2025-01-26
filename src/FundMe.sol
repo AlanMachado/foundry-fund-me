@@ -12,7 +12,7 @@ contract FundMe {
     address[] public funders;
 
     address public i_owner;
-    uint256 public constant MINIMUM_USD = 5 * 10e18;
+    uint256 public constant MINIMUM_USD = 5e18;
 
     constructor() {
         i_owner = msg.sender;
