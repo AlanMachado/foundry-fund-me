@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.29;
+pragma solidity ^0.8.28;
 
 import {PriceConverter} from "./PriceConverter.sol";
 
@@ -19,7 +19,7 @@ contract FundMe {
     }
 
     modifier onlyOwner() {
-        if (msg.sender != owner) {
+        if (msg.sender != i_owner) {
             revert NotOwner();
         }
         _;
@@ -34,11 +34,10 @@ contract FundMe {
 
     function withdraw() public onlyOwner {
         address funder;
-        /* for(uint256 fundersIndex = 0; fundersIndex < funders.length; fundersIndex++) {
-            funder = funders[funderwsIndex];
+        for(uint256 fundersIndex = 0; fundersIndex < funders.length; fundersIndex++) {
+            funder = funders[fundersIndex];
             addressToAmountFunded[funder] = 0;
-        } */
-        addressToAmountFunded = mapping(address => uint256)();
+        }
         funders = new address[](0);
 
         /*
