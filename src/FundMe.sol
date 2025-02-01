@@ -12,10 +12,12 @@ contract FundMe {
     address[] public funders;
 
     address public i_owner;
+    address public priceFeed;
     uint256 public constant MINIMUM_USD = 5e18;
 
-    constructor() {
+    constructor(address _priceFeed) {
         i_owner = msg.sender;
+        priceFeed = _priceFeed;
     }
 
     modifier onlyOwner() {
@@ -25,8 +27,16 @@ contract FundMe {
         _;
     }
 
+    function changePriceFeed(address _priceFeed) public onlyOwner {
+        priceFeed = _priceFeed;
+    }
+
+    function getVersion() public view returns(uint256) {
+        return PriceConverter.getVersion(priceFeed);
+    }
+
     function fund() public payable {
-        require(msg.value.getConversionRate() >= MINIMUM_USD, "Didn't send enough ETH");
+        require(msg.value.getConversionRate(priceFeed) >= MINIMUM_USD, "Didn't send enough ETH");
 
         funders.push(msg.sender);
         addressToAmountFunded[msg.sender] += msg.value;
