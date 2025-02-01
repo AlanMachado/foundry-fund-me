@@ -36,6 +36,10 @@ contract HelperConfig is Script{
     * Deploy the mocks and return the mock address
     */
     function getAnvilEthConfig() public returns(NetworkConfig memory anvilConfig){
+        if (activeNetworkConfig.priceFeed != address(0)) {
+            return activeNetworkConfig; 
+        }
+
         vm.startBroadcast();
         MockV3Aggregator mockPricedFeed = new MockV3Aggregator(8, 2000e8);
         vm.stopBroadcast();
