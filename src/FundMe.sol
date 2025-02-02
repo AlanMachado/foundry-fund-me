@@ -8,10 +8,10 @@ error FundMe__NotOwner();
 contract FundMe {
     using PriceConverter for uint256;
 
-    mapping(address => uint256) public addressToAmountFunded;
-    address[] public funders;
+    mapping(address => uint256) private s_addressToAmountFunded;
+    address[] private s_funders;
 
-    address public i_owner;
+    address private i_owner;
     address public priceFeed;
     uint256 public constant MINIMUM_USD = 5e18;
 
@@ -38,17 +38,17 @@ contract FundMe {
     function fund() public payable {
         require(msg.value.getConversionRate(priceFeed) >= MINIMUM_USD, "Didn't send enough ETH");
 
-        funders.push(msg.sender);
-        addressToAmountFunded[msg.sender] += msg.value;
+        s_funders.push(msg.sender);
+        s_addressToAmountFunded[msg.sender] += msg.value;
     }
 
     function withdraw() public onlyOwner {
         address funder;
-        for(uint256 fundersIndex = 0; fundersIndex < funders.length; fundersIndex++) {
-            funder = funders[fundersIndex];
-            addressToAmountFunded[funder] = 0;
+        for(uint256 fundersIndex = 0; fundersIndex < s_funders.length; fundersIndex++) {
+            funder = s_funders[fundersIndex];
+            s_addressToAmountFunded[funder] = 0;
         }
-        funders = new address[](0);
+        s_funders = new address[](0);
 
         /*
         * We can transfer funds using 3 different methods
@@ -83,4 +83,17 @@ contract FundMe {
     fallback() external payable {
         fund();
     }
+    
+    function getAddressToAmountFunded(address fundingAddress) external view returns(uint256) {
+        return s_addressToAmountFunded[fundingAddress];
+    }
+
+    function getFunder(uint256 index) external view returns(address) {
+        return s_funders[index];
+    }
+
+    function getOwner() external view returns(address) {
+        return i_owner;
+    }
+   
 }
