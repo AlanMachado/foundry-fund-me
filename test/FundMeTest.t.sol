@@ -95,4 +95,17 @@ contract FundMeTest is Test {
         assertEq(endingFundMeBalance, 0);
         assertEq(endingOwnerBalance, startingFundMeBalance + startingOwnerBalance);
     }
+
+    function testReceiveFunction() public {
+        uint256 fundAmount = 1 ether;
+        hoax(makeAddr("testUser"), fundAmount);
+
+        (bool sent, ) = address(fundMe).call{value: fundAmount}("");
+        assertTrue(sent, "Funds transfer failed");
+    }
+
+    function testReceiveFunctionFails() public {
+        (bool sent, ) = address(fundMe).call("");
+        assertFalse(sent, "Funds transfer succeeded.");
+    }
 }
