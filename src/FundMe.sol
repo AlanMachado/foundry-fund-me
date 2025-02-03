@@ -12,7 +12,7 @@ contract FundMe {
     address[] private s_funders;
 
     address private i_owner;
-    address public priceFeed;
+    address private priceFeed;
     uint256 public constant MINIMUM_USD = 5e18;
 
     constructor(address _priceFeed) {
@@ -94,6 +94,10 @@ contract FundMe {
 
     function getOwner() external view returns(address) {
         return i_owner;
+    }
+
+    function getPriceFeed() external view returns(address) {
+        return priceFeed;
     }
    
 }

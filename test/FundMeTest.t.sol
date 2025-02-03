@@ -54,6 +54,20 @@ contract FundMeTest is Test {
         assertEq(funder, USER);
     }
 
+    function testCanChangePriceFeed() public {
+        address someAddress = makeAddr("newPriceFeed");
+        vm.prank(fundMe.getOwner());
+        fundMe.changePriceFeed(someAddress);
+        assertEq(fundMe.getPriceFeed(), someAddress);
+    }
+
+    function testOnlyOWnerCanChangePriceFeed() public {
+        address someAddress = makeAddr("newPriceFeed");
+        vm.expectRevert();
+        vm.prank(USER);
+        fundMe.changePriceFeed(someAddress);
+    }
+
     function testOnlyOwnerCanWithdraw() public funded {
         vm.expectRevert();
         vm.prank(USER);
@@ -98,7 +112,7 @@ contract FundMeTest is Test {
 
     function testReceiveFunction() public {
         uint256 fundAmount = 1 ether;
-        hoax(makeAddr("testUser"), fundAmount);
+        vm.prank(USER);
 
         (bool sent, ) = address(fundMe).call{value: fundAmount}("");
         assertTrue(sent, "Funds transfer failed");
@@ -107,5 +121,21 @@ contract FundMeTest is Test {
     function testReceiveFunctionFails() public {
         (bool sent, ) = address(fundMe).call("");
         assertFalse(sent, "Funds transfer succeeded.");
+    }
+
+    function testFallbackWithData() public {
+        bytes memory nonExistentFunctionSigned = abi.encodeWithSignature("nonExistentFunction()");
+        
+        vm.prank(USER);
+        (bool success, ) = address(fundMe).call{value: 1 ether}(nonExistentFunctionSigned);
+        assertTrue(success, "Funds transfer failed");
+    }
+
+    function testFallbackFailsWithoutEnoughEth() public {
+        bytes memory nonExistentFunctionSigned = abi.encodeWithSignature("nonExistentFunction()");
+        
+        vm.prank(USER);
+        (bool success, ) = address(fundMe).call(nonExistentFunctionSigned);
+        assertFalse(success, "Funds transfer succeeded");
     }
 }
